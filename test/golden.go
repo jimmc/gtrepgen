@@ -1,10 +1,51 @@
 package test
 
 import (
+  "bufio"
   "bytes"
   "fmt"
   "io/ioutil"
+  "os"
+  "testing"
 )
+
+type Data struct {
+  TplFilePath string;
+  OutFilePath string;
+  GoldenFilePath string;
+  OutW *bufio.Writer;
+  OutF *os.File;
+}
+
+func Setup(t *testing.T, basename string) *Data {
+  t.Helper()
+  tplfilepath := "testdata/" + basename + ".tpl"
+  outfilepath := "testdata/" + basename + ".out"
+  goldenfilepath := "testdata/" + basename + ".golden"
+
+  os.Remove(outfilepath)
+  f, err := os.Create(outfilepath)
+  if err != nil {
+    t.Fatal(err)
+  }
+  w := bufio.NewWriter(f)
+
+  return &Data{
+    TplFilePath: tplfilepath,
+    OutFilePath: outfilepath,
+    GoldenFilePath: goldenfilepath,
+    OutF: f,
+    OutW: w,
+  }
+}
+
+func Finish(t *testing.T, data *Data) {
+  data.OutW.Flush()
+  data.OutF.Close()
+  if err := CompareOutToGolden(data.OutFilePath, data.GoldenFilePath); err != nil {
+    t.Fatal(err)
+  }
+}
 
 func CompareOutToGolden(outfilename, goldenfilename string) error {
   outcontent, err := ioutil.ReadFile(outfilename)
@@ -20,5 +61,3 @@ func CompareOutToGolden(outfilename, goldenfilename string) error {
   }
   return nil
 }
-
-

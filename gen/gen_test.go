@@ -1,8 +1,6 @@
 package gen
 
 import (
-  "bufio"
-  "os"
   "testing"
 
   gentest "github.com/jimmc/gtrepgen/test"
@@ -13,78 +11,38 @@ func TestFromSTring(t *testing.T) {
   dot := "World"
   templ := "Hello {{.}}\n"
 
-  outfilepath := "testdata/" + basename + ".out"
-  goldenfilepath := "testdata/" + basename + ".golden"
+  d := gentest.Setup(t, basename)
 
-  os.Remove(outfilepath)
-  f, err := os.Create(outfilepath)
-  if err != nil {
-    t.Fatal(err)
-  }
-  w := bufio.NewWriter(f)
-
-  if err := FromString(w, "test", templ, dot); err != nil {
+  if err := FromString(d.OutW, "test", templ, dot); err != nil {
     t.Fatal(err)
   }
 
-  w.Flush()
-  f.Close()
-
-  if err := gentest.CompareOutToGolden(outfilepath, goldenfilepath); err != nil {
-    t.Fatal(err)
-  }
+  gentest.Finish(t, d)
 }
 
 func TestFromPath(t *testing.T) {
   basename := "helloworld"
   dot := "World"
 
-  infilepath := "testdata/" + basename + ".tpl"
-  outfilepath := "testdata/" + basename + ".out"
-  goldenfilepath := "testdata/" + basename + ".golden"
+  d := gentest.Setup(t, basename)
 
-  os.Remove(outfilepath)
-  f, err := os.Create(outfilepath)
-  if err != nil {
-    t.Fatal(err)
-  }
-  w := bufio.NewWriter(f)
-
-  if err := FromPath(w, "test", infilepath, dot); err != nil {
+  if err := FromPath(d.OutW, "test", d.TplFilePath, dot); err != nil {
     t.Fatal(err)
   }
 
-  w.Flush()
-  f.Close()
-
-  if err := gentest.CompareOutToGolden(outfilepath, goldenfilepath); err != nil {
-    t.Fatal(err)
-  }
+  gentest.Finish(t, d)
 }
 
 func TestFromForm(t *testing.T) {
   formname := "org.jimmc.gtrepgen.test1"
+  refdirpath := "testdata"
   dot := "World"
 
-  refdirpath := "testdata"
-  outfilepath := "testdata/" + formname + ".out"
-  goldenfilepath := "testdata/" + formname + ".golden"
+  d := gentest.Setup(t, formname)
 
-  os.Remove(outfilepath)
-  f, err := os.Create(outfilepath)
-  if err != nil {
-    t.Fatal(err)
-  }
-  w := bufio.NewWriter(f)
-
-  if err := FromForm(w, formname, refdirpath, dot); err != nil {
+  if err := FromForm(d.OutW, formname, refdirpath, dot); err != nil {
     t.Fatal(err)
   }
 
-  w.Flush()
-  f.Close()
-
-  if err := gentest.CompareOutToGolden(outfilepath, goldenfilepath); err != nil {
-    t.Fatal(err)
-  }
+  gentest.Finish(t, d)
 }
