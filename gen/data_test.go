@@ -9,43 +9,39 @@ import (
 
 type TestSource struct{}
 
-func (s *TestSource) Data(args ...interface{}) (interface{}, error) {
+func (s *TestSource) Row(args ...interface{}) (interface{}, error) {
   a0, ok := args[0].(string)
   if !ok {
-    return nil, fmt.Errorf("TestSource.Data first arg must be string")
+    return nil, fmt.Errorf("TestSource.Row first arg must be string")
   }
-  a1, ok := args[1].(string)
+  return map[string]interface{}{
+    "a": 1,
+    "b": 2.2,
+    "c": "Three:"+a0,
+  }, nil
+}
+
+func (s *TestSource) Rows(args ...interface{}) (interface{}, error) {
+  a0, ok := args[0].(string)
   if !ok {
-    return nil, fmt.Errorf("TestSource.Data second arg must be string")
+    return nil, fmt.Errorf("TestSource.Row first arg must be string")
   }
-  switch a0 {
-  case "field":
-    return "<" + a1 + ">", nil
-  case "row":
-    return map[string]interface{}{
-      "a": 1,
-      "b": 2.2,
-      "c": "Three:"+a1,
-    }, nil
-  case "rows":
-    r0 := map[string]interface{}{
-      "a": 1,
-      "b": 2.2,
-      "c": "Three:"+a1,
-    }
-    r1 := map[string]interface{}{
-      "a": 11,
-      "b": 12.2,
-      "c": "Thirteen:"+a1,
-    }
-    r2 := map[string]interface{}{
-      "a": 21,
-      "b": 22.2,
-      "c": "Twentythree:"+a1,
-    }
-    return []interface{}{r0, r1, r2}, nil
+  r0 := map[string]interface{}{
+    "a": 1,
+    "b": 2.2,
+    "c": "Three:"+a0,
   }
-  return nil, fmt.Errorf("unknown return type specifier %q", a0)
+  r1 := map[string]interface{}{
+    "a": 11,
+    "b": 12.2,
+    "c": "Thirteen:"+a0,
+  }
+  r2 := map[string]interface{}{
+    "a": 21,
+    "b": 22.2,
+    "c": "Twentythree:"+a0,
+  }
+  return []interface{}{r0, r1, r2}, nil
 }
 
 func TestDataSource(t *testing.T) {

@@ -15,7 +15,8 @@ const templateExtension = ".tpl"
 func FromString(w io.Writer, source data.Source, name, templ string, dot interface{}) error {
   tpl := template.New(name)
   fm := template.FuncMap{
-    "data": source.Data,
+    "row": source.Row,
+    "rows": source.Rows,
   }
   tpl = tpl.Funcs(fm)
   tpl, err := tpl.Parse(templ)

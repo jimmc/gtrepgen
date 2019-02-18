@@ -1,11 +1,16 @@
 package data
 
 type Source interface {
-  Data(args ...interface{}) (interface{}, error)
+  Row(args ...interface{}) (interface{}, error)
+  Rows(args ...interface{}) (interface{}, error)
 }
 
 type EmptySource struct{}
 
-func (s *EmptySource) Data(args ...interface{}) (interface{}, error) {
+func (s *EmptySource) Row(args ...interface{}) (interface{}, error) {
+  return nil, nil
+}
+
+func (s *EmptySource) Rows(args ...interface{}) (interface{}, error) {
   return nil, nil
 }

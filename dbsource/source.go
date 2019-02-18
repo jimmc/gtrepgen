@@ -3,6 +3,7 @@ package dbsource
 import (
   "database/sql"
   "errors"
+  "fmt"
   "log"
 )
 
@@ -23,9 +24,10 @@ func New(db dbQuery) *SqlSource {
   }
 }
 
-// Data gets data from our database. The first arg is the query string, and all
+// Rows gets multiple rows from our database. The first arg is the query string, and all
 // following args are passed to the Query function as arguments for the query string.
-func (s *SqlSource) Data(args ...interface{}) (interface{}, error) {
+// This function may return zero or more rows.
+func (s *SqlSource) Rows(args ...interface{}) (interface{}, error) {
   query, ok := args[0].(string)
   if !ok {
     return nil, errors.New("SqlSource.Data first arg must be string (query)")
@@ -71,4 +73,22 @@ func (s *SqlSource) Data(args ...interface{}) (interface{}, error) {
     data = append(data, m)
   }
   return data, nil
+}
+
+// Row gets exactly one row from our database. The first arg is the query string, and all
+// following args are passed to the Query function as arguments for the query string.
+// If the database returns either zero rows or two or more rows, this function returns an error.
+func (s *SqlSource) Row(args ...interface{}) (interface{}, error) {
+  data, err := s.Rows(args...)
+  if err != nil {
+    return nil, err
+  }
+  rows, ok := data.([]map[string]interface{})
+  if !ok {
+    return nil, fmt.Errorf("SqlSource.Row unexpected type returned from Rows")
+  }
+  if len(rows) != 1 {
+    return nil, fmt.Errorf("SqlSource.Row expected one row, got %d", len(rows))
+  }
+  return rows[0], nil
 }
