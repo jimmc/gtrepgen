@@ -1,11 +1,11 @@
 package data
 
 type Source interface {
-  Data(args ...string) interface{}
+  Data(args ...interface{}) (interface{}, error)
 }
 
 type EmptySource struct{}
 
-func (s *EmptySource) Data(args ...string) interface{} {
-  return nil
+func (s *EmptySource) Data(args ...interface{}) (interface{}, error) {
+  return nil, nil
 }

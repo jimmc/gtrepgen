@@ -1,6 +1,7 @@
 package gen
 
 import (
+  "fmt"
   "testing"
 
   gentest "github.com/jimmc/gtrepgen/test"
@@ -8,17 +9,24 @@ import (
 
 type TestSource struct{}
 
-func (s *TestSource) Data(args ...string) interface{} {
-  a1 := args[1]
-  switch args[0] {
+func (s *TestSource) Data(args ...interface{}) (interface{}, error) {
+  a0, ok := args[0].(string)
+  if !ok {
+    return nil, fmt.Errorf("TestSource.Data first arg must be string")
+  }
+  a1, ok := args[1].(string)
+  if !ok {
+    return nil, fmt.Errorf("TestSource.Data second arg must be string")
+  }
+  switch a0 {
   case "field":
-    return "<" + a1 + ">"
+    return "<" + a1 + ">", nil
   case "row":
     return map[string]interface{}{
       "a": 1,
       "b": 2.2,
       "c": "Three:"+a1,
-    }
+    }, nil
   case "rows":
     r0 := map[string]interface{}{
       "a": 1,
@@ -35,9 +43,9 @@ func (s *TestSource) Data(args ...string) interface{} {
       "b": 22.2,
       "c": "Twentythree:"+a1,
     }
-    return []interface{}{r0, r1, r2}
+    return []interface{}{r0, r1, r2}, nil
   }
-  return nil
+  return nil, fmt.Errorf("unknown return type specifier %q", a0)
 }
 
 func TestDataSource(t *testing.T) {
