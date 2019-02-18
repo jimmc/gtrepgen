@@ -51,7 +51,8 @@ func TestDataSource(t *testing.T) {
 
   d := gentest.Setup(t, formname)
 
-  if err := FromForm(d.OutW, &TestSource{}, formname, refdirpath, dot); err != nil {
+  g := New(formname, false, d.OutW, &TestSource{})
+  if err := g.FromForm(refdirpath, dot); err != nil {
     t.Fatal(err)
   }
 

@@ -14,7 +14,8 @@ func TestFromString(t *testing.T) {
 
   d := gentest.Setup(t, basename)
 
-  if err := FromString(d.OutW, &data.EmptySource{}, "test", templ, dot); err != nil {
+  g := New("test", false, d.OutW, &data.EmptySource{})
+  if err := g.FromString(templ, dot); err != nil {
     t.Fatal(err)
   }
 
@@ -27,7 +28,8 @@ func TestFromPath(t *testing.T) {
 
   d := gentest.Setup(t, basename)
 
-  if err := FromPath(d.OutW, &data.EmptySource{}, "test", d.TplFilePath, dot); err != nil {
+  g := New("test", false, d.OutW, &data.EmptySource{})
+  if err := g.FromPath(d.TplFilePath, dot); err != nil {
     t.Fatal(err)
   }
 
@@ -41,7 +43,23 @@ func TestFromForm(t *testing.T) {
 
   d := gentest.Setup(t, formname)
 
-  if err := FromForm(d.OutW, &data.EmptySource{}, formname, refdirpath, dot); err != nil {
+  g := New(formname, false, d.OutW, &data.EmptySource{})
+  if err := g.FromForm(refdirpath, dot); err != nil {
+    t.Fatal(err)
+  }
+
+  gentest.Finish(t, d)
+}
+
+func TestHTML(t *testing.T) {
+  basename := "htmlfromstring"
+  dot := "<World>"
+  templ := "Hello {{.}}\n"
+
+  d := gentest.Setup(t, basename)
+
+  g := New("test", true, d.OutW, &data.EmptySource{})
+  if err := g.FromString(templ, dot); err != nil {
     t.Fatal(err)
   }
 
