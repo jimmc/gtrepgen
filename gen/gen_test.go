@@ -65,3 +65,18 @@ func TestHTML(t *testing.T) {
 
   gentest.Finish(t, d)
 }
+
+func TestInclude(t *testing.T) {
+  formname := "org.jimmc.gtrepgen.testinclude"
+  refdirpath := "testdata"
+  dot := "World"
+
+  d := gentest.Setup(t, formname)
+
+  g := New(formname, false, d.OutW, &data.EmptySource{})
+  if err := g.FromForm(refdirpath, dot); err != nil {
+    t.Fatal(err)
+  }
+
+  gentest.Finish(t, d)
+}

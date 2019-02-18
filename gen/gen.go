@@ -1,6 +1,7 @@
 package gen
 
 import (
+  "fmt"
   htmltemplate "html/template"
   "io"
   "io/ioutil"
@@ -19,6 +20,7 @@ type Generator struct {
   w io.Writer;
   source data.Source;
   isHTML bool;
+  refpath string;
 }
 
 // New creates a Generator.
@@ -31,6 +33,21 @@ func New(name string, isHTML bool, w io.Writer, source data.Source) *Generator {
   }
 }
 
+// include allows us to include another template from our reference directory.
+// Args is either no args or a single arg that sets dot.
+func (g *Generator) include(name string, args ...interface{}) (interface{}, error) {
+  tplpath := path.Join(g.refpath, name) + templateExtension
+  var dot interface{}
+  if len(args) > 1 {
+    return nil, fmt.Errorf("Too many args (%d) for Generator.template", len(args))
+  } else if len(args) == 0 {
+    dot = nil
+  } else {
+    dot = args[0]
+  }
+  return "", g.FromPath(tplpath, dot)
+}
+
 // htmlFromString executes the given literal template with the specified dot value
 // using html/template.
 func (g *Generator) htmlFromString(templ string, dot interface{}) error {
@@ -38,6 +55,7 @@ func (g *Generator) htmlFromString(templ string, dot interface{}) error {
   fm := htmltemplate.FuncMap{
     "row": g.source.Row,
     "rows": g.source.Rows,
+    "include": g.include,
   }
   tpl = tpl.Funcs(fm)
   tpl, err := tpl.Parse(templ)
@@ -57,6 +75,7 @@ func (g *Generator) textFromString(templ string, dot interface{}) error {
   fm := texttemplate.FuncMap{
     "row": g.source.Row,
     "rows": g.source.Rows,
+    "include": g.include,
   }
   tpl = tpl.Funcs(fm)
   tpl, err := tpl.Parse(templ)
@@ -90,6 +109,7 @@ func (g *Generator) FromPath(tplpath string, dot interface{}) error {
 // FromForm reads a template from a named file within a reference directory
 // and executes it with the specified dot value.
 func (g *Generator) FromForm(refpath string, dot interface{}) error {
+  g.refpath = refpath
   tplpath := path.Join(refpath, g.name) + templateExtension
   return g.FromPath(tplpath, dot)
 }

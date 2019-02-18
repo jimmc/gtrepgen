@@ -1,0 +1,4 @@
+Top file, data is World
+No data: This is the included file with data <no value>
+With foo: This is the included file with data foo
+End of top file
