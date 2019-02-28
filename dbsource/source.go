@@ -7,18 +7,18 @@ import (
   "log"
 )
 
-// dbQuery represents the functions we use from a database.
+// DBQuery represents the functions we use from a database.
 // It is designed to accept either a sql.DB or a sql.Tx.
-type dbQuery interface{
+type DBQuery interface{
   Query(query string, args ...interface{}) (*sql.Rows, error)
 }
 
 type SqlSource struct{
-  db dbQuery;
+  db DBQuery;
 }
 
 // New creates a new SqlSource from a database or transaction.
-func New(db dbQuery) *SqlSource {
+func New(db DBQuery) *SqlSource {
   return &SqlSource{
     db: db,
   }
