@@ -46,13 +46,13 @@ func (s *TestSource) Rows(args ...interface{}) (interface{}, error) {
 
 func TestDataSource(t *testing.T) {
   formname := "org.jimmc.gtrepgen.datatest"
-  refdirpath := "testdata"
+  refdirpaths := []string{"testdata"}
   dot := "top"
 
   d := gentest.Setup(t, formname)
 
   g := New(formname, false, d.OutW, &TestSource{})
-  if err := g.FromForm(refdirpath, dot); err != nil {
+  if err := g.FromForm(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 

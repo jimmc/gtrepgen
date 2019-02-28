@@ -5,6 +5,7 @@ import (
   htmltemplate "html/template"
   "io"
   "io/ioutil"
+  "os"
   "path"
   texttemplate "text/template"
 
@@ -20,7 +21,7 @@ type Generator struct {
   w io.Writer;
   source data.Source;
   isHTML bool;
-  refpath string;
+  refpaths []string;
 }
 
 // New creates a Generator.
@@ -36,7 +37,10 @@ func New(name string, isHTML bool, w io.Writer, source data.Source) *Generator {
 // include allows us to include another template from our reference directory.
 // Args is either no args or a single arg that sets dot.
 func (g *Generator) include(name string, args ...interface{}) (interface{}, error) {
-  tplpath := path.Join(g.refpath, name) + templateExtension
+  tplpath, err := g.FindForm(name)
+  if err != nil {
+    return nil, err
+  }
   var dot interface{}
   if len(args) > 1 {
     return nil, fmt.Errorf("Too many args (%d) for Generator.template", len(args))
@@ -106,10 +110,26 @@ func (g *Generator) FromPath(tplpath string, dot interface{}) error {
   return g.FromString(string(templ), dot)
 }
 
-// FromForm reads a template from a named file within a reference directory
+// FromForm reads a template from a named file within a set of reference directories
 // and executes it with the specified dot value.
-func (g *Generator) FromForm(refpath string, dot interface{}) error {
-  g.refpath = refpath
-  tplpath := path.Join(refpath, g.name) + templateExtension
+func (g *Generator) FromForm(refpaths []string, dot interface{}) error {
+  g.refpaths = refpaths
+  tplpath, err := g.FindForm(g.name)
+  if err != nil {
+    return err
+  }
   return g.FromPath(tplpath, dot)
+}
+
+// FindForm finds the first readable template in the list of reference directories.
+func (g *Generator) FindForm(name string) (string, error) {
+  for _, d := range g.refpaths {
+    tplpath := path.Join(d, name) + templateExtension
+    f, err := os.Open(tplpath)
+    if err == nil {
+      f.Close()
+      return tplpath, nil
+    }
+  }
+  return "", fmt.Errorf("Template for %q not found", name)
 }
