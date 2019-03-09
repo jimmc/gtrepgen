@@ -50,6 +50,7 @@ func (s *SqlSource) Rows(args ...interface{}) (interface{}, error) {
         return nil, err
       }
       fieldCount = len(colNames)
+      log.Printf("cols are %+v", colNames)
     }
     values := make([]interface{}, fieldCount)
     targets := make([]interface{}, fieldCount)

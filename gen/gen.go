@@ -34,6 +34,28 @@ func New(name string, isHTML bool, w io.Writer, source data.Source) *Generator {
   }
 }
 
+// Create a copy of a generator with a changed name.
+func (g *Generator) WithName(name string) *Generator {
+  return &Generator{
+    name: name,
+    w: g.w,
+    source: g.source,
+    isHTML: g.isHTML,
+    refpaths: g.refpaths,
+  }
+}
+
+// Create a copy of a generator with a changed refpaths.
+func (g *Generator) WithRefpaths(refpaths []string) *Generator {
+  return &Generator{
+    name: g.name,
+    w: g.w,
+    source: g.source,
+    isHTML: g.isHTML,
+    refpaths: refpaths,
+  }
+}
+
 // include allows us to include another template from our reference directory.
 // Args is either no args or a single arg that sets dot.
 func (g *Generator) include(name string, args ...interface{}) (interface{}, error) {
@@ -49,7 +71,7 @@ func (g *Generator) include(name string, args ...interface{}) (interface{}, erro
   } else {
     dot = args[0]
   }
-  return "", g.FromPath(tplpath, dot)
+  return "", g.WithName(name).FromPath(tplpath, dot)
 }
 
 // htmlFromString executes the given literal template with the specified dot value
@@ -113,7 +135,7 @@ func (g *Generator) FromPath(tplpath string, dot interface{}) error {
 // FromForm reads a template from a named file within a set of reference directories
 // and executes it with the specified dot value.
 func (g *Generator) FromForm(refpaths []string, dot interface{}) error {
-  g.refpaths = refpaths
+  g = g.WithRefpaths(refpaths)
   tplpath, err := g.FindForm(g.name)
   if err != nil {
     return err
