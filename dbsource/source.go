@@ -43,6 +43,7 @@ func (s *SqlSource) Rows(args ...interface{}) (interface{}, error) {
   // We need to return either an array or a channel.
   // For now, read all the rows and return an array.
   data := make([]map[string]interface{}, 0)
+  rownum := 0
   for rr.Next() {
     if fieldCount < 0 {
       colNames, err = rr.Columns()
@@ -70,6 +71,8 @@ func (s *SqlSource) Rows(args ...interface{}) (interface{}, error) {
       }
       m[colNames[i]] = values[i]
     }
+    m["rownum"] = rownum
+    rownum++
     log.Printf("row is %+v", values)
     data = append(data, m)
   }
