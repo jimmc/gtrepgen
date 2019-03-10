@@ -2,6 +2,7 @@ package gen
 
 import (
   "testing"
+  "time"
 
   "github.com/jimmc/gtrepgen/data"
   gentest "github.com/jimmc/gtrepgen/test"
@@ -101,15 +102,25 @@ func TestIncludeTwoDirs(t *testing.T) {
 
 func TestEvenOdd(t *testing.T) {
   if got, want := evenodd(0, "a", "b"), "a"; got != want {
-    t.Errorf("evenodd got %v, expected %v", got, want)
+    t.Errorf("evenodd got %v, want %v", got, want)
   }
   if got, want := evenodd(3, "a", "b"), "b"; got != want {
-    t.Errorf("evenodd got %v, expected %v", got, want)
+    t.Errorf("evenodd got %v, want %v", got, want)
   }
   if got, want := evenodd(-4, "a", "b"), "a"; got != want {
-    t.Errorf("evenodd got %v, expected %v", got, want)
+    t.Errorf("evenodd got %v, want %v", got, want)
   }
   if got, want := evenodd(-3, "a", "b"), "b"; got != want {
-    t.Errorf("evenodd got %v, expected %v", got, want)
+    t.Errorf("evenodd got %v, want %v", got, want)
+  }
+}
+
+func TestFormatTime(t *testing.T) {
+  testTime, err := time.Parse("Jan 2, 2006 15:04:05", "Feb 1, 2019 14:34:20")
+  if err != nil {
+    t.Fatalf("Error parsing test time")
+  }
+  if got, want := formatTime("Jan 2, 2006 3:04:05 PM", testTime), "Feb 1, 2019 2:34:20 PM"; got != want {
+    t.Errorf("formatTime got %v, want %v", got, want)
   }
 }

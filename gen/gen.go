@@ -8,6 +8,7 @@ import (
   "os"
   "path"
   texttemplate "text/template"
+  "time"
 
   "github.com/jimmc/gtrepgen/data"
 )
@@ -127,11 +128,15 @@ func (g *Generator) textFromString(templ string, dot interface{},fm map[string]i
 
 // FromString executes the given literal template with the specified dot value.
 func (g *Generator) FromString(templ string, dot interface{}) error {
+  now := time.Now()
+  startTime := func() time.Time { return now }
   fm := map[string]interface{}{  // fm is a (texttemplate|htmltemplate).FuncMap
-    "row": g.source.Row,
-    "rows": g.source.Rows,
     "include": g.include,
     "evenodd": evenodd,
+    "formatTime": formatTime,
+    "reportStartTime": startTime,
+    "row": g.source.Row,
+    "rows": g.source.Rows,
   }
   if g.isHTML {
     return g.htmlFromString(templ, dot, fm)
@@ -180,4 +185,9 @@ func evenodd(n int, evenret, oddret interface{}) interface{} {
   } else {
     return oddret
   }
+}
+
+// formatTime passes the args through to time.Format.
+func formatTime(format string, t time.Time) string {
+  return t.Format(format)
 }
