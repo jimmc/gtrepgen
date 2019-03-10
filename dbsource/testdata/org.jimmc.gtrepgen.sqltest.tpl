@@ -7,5 +7,5 @@ People in that company:
 {{range rows "select firstname, lastname from person where companyid = ?" .}}
     First name: {{.firstname}}
     Last name:  {{.lastname}}
-    rownum:     {{.rownum}}
+    rowindex:   {{.rowindex}}
 {{end}}

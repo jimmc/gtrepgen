@@ -7,9 +7,9 @@ People in that company:
 
     First name: John
     Last name:  Doe
-    rownum:     0
+    rowindex:   0
 
     First name: Jane
     Last name:  Doe
-    rownum:     1
+    rowindex:   1
 
