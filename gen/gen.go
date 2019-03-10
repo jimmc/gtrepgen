@@ -76,13 +76,8 @@ func (g *Generator) include(name string, args ...interface{}) (interface{}, erro
 
 // htmlFromString executes the given literal template with the specified dot value
 // using html/template.
-func (g *Generator) htmlFromString(templ string, dot interface{}) error {
+func (g *Generator) htmlFromString(templ string, dot interface{}, fm map[string]interface{}) error {
   tpl := htmltemplate.New(g.name)
-  fm := htmltemplate.FuncMap{
-    "row": g.source.Row,
-    "rows": g.source.Rows,
-    "include": g.include,
-  }
   tpl = tpl.Funcs(fm)
   tpl, err := tpl.Parse(templ)
   if err != nil {
@@ -96,13 +91,8 @@ func (g *Generator) htmlFromString(templ string, dot interface{}) error {
 
 // textFromString executes the given literal template with the specified dot value
 // using text/template.
-func (g *Generator) textFromString(templ string, dot interface{}) error {
+func (g *Generator) textFromString(templ string, dot interface{},fm map[string]interface{}) error {
   tpl := texttemplate.New(g.name)
-  fm := texttemplate.FuncMap{
-    "row": g.source.Row,
-    "rows": g.source.Rows,
-    "include": g.include,
-  }
   tpl = tpl.Funcs(fm)
   tpl, err := tpl.Parse(templ)
   if err != nil {
@@ -116,10 +106,16 @@ func (g *Generator) textFromString(templ string, dot interface{}) error {
 
 // FromString executes the given literal template with the specified dot value.
 func (g *Generator) FromString(templ string, dot interface{}) error {
+  fm := map[string]interface{}{  // fm is a (texttemplate|htmltemplate).FuncMap
+    "row": g.source.Row,
+    "rows": g.source.Rows,
+    "include": g.include,
+    "evenodd": evenodd,
+  }
   if g.isHTML {
-    return g.htmlFromString(templ, dot)
+    return g.htmlFromString(templ, dot, fm)
   } else {
-    return g.textFromString(templ, dot)
+    return g.textFromString(templ, dot, fm)
   }
 }
 
@@ -154,4 +150,13 @@ func (g *Generator) FindForm(name string) (string, error) {
     }
   }
   return "", fmt.Errorf("Template for %q not found", name)
+}
+
+// evenodd returns the second or third arg based on whether the first arg is even or odd.
+func evenodd(n int, evenret, oddret interface{}) interface{} {
+  if n % 2 == 0 {
+    return evenret
+  } else {
+    return oddret
+  }
 }

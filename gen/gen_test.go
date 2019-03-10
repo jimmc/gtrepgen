@@ -98,3 +98,18 @@ func TestIncludeTwoDirs(t *testing.T) {
 
   gentest.Finish(t, d)
 }
+
+func TestEvenOdd(t *testing.T) {
+  if got, want := evenodd(0, "a", "b"), "a"; got != want {
+    t.Errorf("evenodd got %v, expected %v", got, want)
+  }
+  if got, want := evenodd(3, "a", "b"), "b"; got != want {
+    t.Errorf("evenodd got %v, expected %v", got, want)
+  }
+  if got, want := evenodd(-4, "a", "b"), "a"; got != want {
+    t.Errorf("evenodd got %v, expected %v", got, want)
+  }
+  if got, want := evenodd(-3, "a", "b"), "b"; got != want {
+    t.Errorf("evenodd got %v, expected %v", got, want)
+  }
+}
