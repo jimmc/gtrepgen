@@ -22,6 +22,7 @@ type Generator struct {
   source data.Source;
   isHTML bool;
   refpaths []string;
+  funcs map[string]interface{};
 }
 
 // New creates a Generator.
@@ -42,6 +43,7 @@ func (g *Generator) WithName(name string) *Generator {
     source: g.source,
     isHTML: g.isHTML,
     refpaths: g.refpaths,
+    funcs: g.funcs,
   }
 }
 
@@ -53,6 +55,19 @@ func (g *Generator) WithRefpaths(refpaths []string) *Generator {
     source: g.source,
     isHTML: g.isHTML,
     refpaths: refpaths,
+    funcs: g.funcs,
+  }
+}
+
+// Create a copy of a generator with a changed funcs.
+func (g *Generator) WithFuncs(funcs map[string]interface{}) *Generator {
+  return &Generator{
+    name: g.name,
+    w: g.w,
+    source: g.source,
+    isHTML: g.isHTML,
+    refpaths: g.refpaths,
+    funcs: funcs,
   }
 }
 
@@ -79,6 +94,9 @@ func (g *Generator) include(name string, args ...interface{}) (interface{}, erro
 func (g *Generator) htmlFromString(templ string, dot interface{}, fm map[string]interface{}) error {
   tpl := htmltemplate.New(g.name)
   tpl = tpl.Funcs(fm)
+  if g.funcs != nil {
+    tpl = tpl.Funcs(g.funcs)
+  }
   tpl, err := tpl.Parse(templ)
   if err != nil {
     return err
@@ -94,6 +112,9 @@ func (g *Generator) htmlFromString(templ string, dot interface{}, fm map[string]
 func (g *Generator) textFromString(templ string, dot interface{},fm map[string]interface{}) error {
   tpl := texttemplate.New(g.name)
   tpl = tpl.Funcs(fm)
+  if g.funcs != nil {
+    tpl = tpl.Funcs(g.funcs)
+  }
   tpl, err := tpl.Parse(templ)
   if err != nil {
     return err
