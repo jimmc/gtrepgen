@@ -15,6 +15,9 @@ import (
 
 const templateExtension = ".tpl"
 
+// Now returns the current time. You can provide your own Now function for testing.
+var Now = time.Now
+
 // Generator provides a type that can generate output from either text or HTML templates
 // from a literal string, a specific file path, or a named file from a reference directory.
 type Generator struct {
@@ -128,7 +131,7 @@ func (g *Generator) textFromString(templ string, dot interface{},fm map[string]i
 
 // FromString executes the given literal template with the specified dot value.
 func (g *Generator) FromString(templ string, dot interface{}) error {
-  now := time.Now()
+  now := Now()
   startTime := func() time.Time { return now }
   fm := map[string]interface{}{  // fm is a (texttemplate|htmltemplate).FuncMap
     "include": g.include,
