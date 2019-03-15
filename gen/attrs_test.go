@@ -94,3 +94,27 @@ func TestReadAttributesFromPath(t *testing.T) {
     t.Fatalf("Attributes: got %+v, want %+v", got, want)
   }
 }
+
+func TestReadDirFilesAttributes(t *testing.T) {
+  expected := []*TemplateAttributes{
+    {
+      Name: "helloworld",
+      Attributes: map[string]interface{}{"display": "Hello World", "x": float64(1)},
+    },
+    {
+      Name: "org.jimmc.gtrepgen.test1",
+      Attributes: map[string]interface{}{"display": "again"},
+    },
+  }
+  attrsList, err := ReadDirFilesAttributes("testdata")
+  if err != nil {
+    t.Fatalf("Error reading dir files attributes: %v", err)
+  }
+  if attrsList == nil {
+    t.Fatal("Nil attrs list")
+  }
+  got, want := attrsList, expected
+  if diff := cmp.Diff(want, got); diff != "" {
+    t.Errorf("ReadDirFilesAttributes() mismatch (-want +got):\n%s", diff)
+  }
+}
