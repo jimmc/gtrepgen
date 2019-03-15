@@ -1,13 +1,14 @@
 package gen
 
 import (
+  "strings"
   "testing"
 
   "github.com/google/go-cmp/cmp"
 )
 
 func TestExtractAttributesEmpty(t *testing.T) {
-  got, err := extractAttributeString("")
+  got, err := extractAttributeString(strings.NewReader(""))
   if err != nil {
     t.Fatalf("Extracting string: %v", err)
   }
@@ -18,7 +19,7 @@ func TestExtractAttributesEmpty(t *testing.T) {
 }
 
 func TestExtractAttributesNoFields(t *testing.T) {
-  got, err := extractAttributeString("{{/*GT: */ -}}")
+  got, err := extractAttributeString(strings.NewReader("{{/*GT: */ -}}"))
   if err != nil {
     t.Fatalf("Extracting string: %v", err)
   }
@@ -29,7 +30,7 @@ func TestExtractAttributesNoFields(t *testing.T) {
 }
 
 func TestExtractAttributesOneFields(t *testing.T) {
-  got, err := extractAttributeString("{{/*GT: 123 */ -}}")
+  got, err := extractAttributeString(strings.NewReader("{{/*GT: 123 */ -}}"))
   if err != nil {
     t.Fatalf("Extracting string: %v", err)
   }
@@ -40,7 +41,7 @@ func TestExtractAttributesOneFields(t *testing.T) {
 }
 
 func TestExtractAttributesThreeLines(t *testing.T) {
-  got, err := extractAttributeString("{{/*GT: abc\ndef\nghi */ -}}")
+  got, err := extractAttributeString(strings.NewReader("{{/*GT: abc\ndef\nghi */ -}}"))
   if err != nil {
     t.Fatalf("Extracting string: %v", err)
   }

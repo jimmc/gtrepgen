@@ -2,28 +2,29 @@ package gen
 
 import (
   "bufio"
-  "io/ioutil"
+  "io"
   "encoding/json"
+  "os"
   "strings"
 )
 
-func extractAttributeString(templ string) (string, error) {
-  magic := "{{/*GT:"      // This is what starts our attribute string.
-  terminator := "*/ -}}"  // This is what ends our attribute string.
-  scanner := bufio.NewScanner(strings.NewReader(templ))
+func extractAttributeString(templ io.Reader) (string, error) {
+  magicStart := "{{/*GT:"      // This is what starts our attribute string.
+  magicEnd := "*/ -}}"  // This is what ends our attribute string.
+  scanner := bufio.NewScanner(templ)
   if !scanner.Scan() {
     // Empty input.
     return "", scanner.Err()
   }
   line := scanner.Text()
-  if !strings.HasPrefix(line, magic) {
+  if !strings.HasPrefix(line, magicStart) {
     // The content does not start with our magic prefix indicating our attributes.
     return "", nil
   }
-  line = strings.TrimPrefix(line, magic)       // Strip the prefix.
-  if strings.HasSuffix(line, terminator) {
+  line = strings.TrimPrefix(line, magicStart)       // Strip the prefix.
+  if strings.HasSuffix(line, magicEnd) {
     // Everything is on one line.
-    line = strings.TrimSuffix(line, terminator)
+    line = strings.TrimSuffix(line, magicEnd)
     return strings.TrimSpace(line), nil
   }
   var b strings.Builder
@@ -35,8 +36,8 @@ func extractAttributeString(templ string) (string, error) {
   }
   for scanner.Scan() {
     line = scanner.Text()
-    if strings.HasSuffix(line, terminator) {
-      line = strings.TrimSuffix(line, terminator)
+    if strings.HasSuffix(line, magicEnd) {
+      line = strings.TrimSuffix(line, magicEnd)
       if _, err := b.WriteString(line); err != nil {
         return "", err
       }
@@ -58,7 +59,7 @@ func extractAttributeString(templ string) (string, error) {
   return strings.TrimSpace(b.String()), nil
 }
 
-func ReadTemplateAttributesFromString(templ string) (interface{}, error) {
+func ReadTemplateAttributesFromReader(templ io.Reader) (interface{}, error) {
   b, err := extractAttributeString(templ)
   if err != nil {
     return nil, err
@@ -73,10 +74,15 @@ func ReadTemplateAttributesFromString(templ string) (interface{}, error) {
   return a, nil
 }
 
+func ReadTemplateAttributesFromString(templ string) (interface{}, error) {
+  return ReadTemplateAttributesFromReader(strings.NewReader(templ))
+}
+
 func ReadTemplateAttributesFromPath(tplpath string) (interface{}, error) {
-  templ, err := ioutil.ReadFile(tplpath)
+  f, err := os.Open(tplpath)
   if err != nil {
     return nil, err
   }
-  return ReadTemplateAttributesFromString(string(templ))
+  defer f.Close()
+  return ReadTemplateAttributesFromReader(f)
 }
