@@ -75,7 +75,7 @@ func extractAttributeString(templ io.Reader) (string, error) {
     }
   }
   if err := scanner.Err(); err != nil {
-    return "", err
+    return "", fmt.Errorf("scanning for template attributes: %v", err)
   }
   return strings.TrimSpace(b.String()), nil
 }
@@ -87,14 +87,14 @@ func extractAttributeString(templ io.Reader) (string, error) {
 func ReadTemplateAttributesFromReader(templ io.Reader) (interface{}, error) {
   b, err := extractAttributeString(templ)
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("extracting attributes from template: %v", err)
   }
   if b == "" {
     return nil, nil
   }
   var a interface{}
   if err := json.Unmarshal([]byte(b), &a); err != nil {
-    return nil, err
+    return nil, fmt.Errorf("unmarshalling json for template attributes: %v", err)
   }
   return a, nil
 }
@@ -114,7 +114,7 @@ func ReadTemplateAttributesFromString(templ string) (interface{}, error) {
 func ReadTemplateAttributesFromPath(tplpath string) (interface{}, error) {
   f, err := os.Open(tplpath)
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("opening template file %s: %v", tplpath, err)
   }
   defer f.Close()
   return ReadTemplateAttributesFromReader(f)
@@ -131,7 +131,7 @@ func ReadTemplateAttributesFromPath(tplpath string) (interface{}, error) {
 func ReadDirFilesAttributes(tpldir string) ([]*TemplateAttributes, error) {
   fileinfos, err := ioutil.ReadDir(tpldir)
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("reading templates from %s: %v", tpldir, err)
   }
   errCount := 0
   templateAttributes := []*TemplateAttributes{}

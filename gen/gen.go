@@ -80,11 +80,11 @@ func (g *Generator) WithFuncs(funcs map[string]interface{}) *Generator {
 func (g *Generator) include(name string, args ...interface{}) (interface{}, error) {
   tplpath, err := g.FindForm(name)
   if err != nil {
-    return nil, err
+    return nil, fmt.Errorf("template %s: %v", name, err)
   }
   var dot interface{}
   if len(args) > 1 {
-    return nil, fmt.Errorf("Too many args (%d) for Generator.template", len(args))
+    return nil, fmt.Errorf("too many args (%d) for Generator.template", len(args))
   } else if len(args) == 0 {
     dot = nil
   } else {
@@ -103,10 +103,10 @@ func (g *Generator) htmlFromString(templ string, dot interface{}, fm map[string]
   }
   tpl, err := tpl.Parse(templ)
   if err != nil {
-    return err
+    return fmt.Errorf("parsing html template %s: %v", g.name, err)
   }
   if err := tpl.Execute(g.w, dot); err != nil {
-    return err
+    return fmt.Errorf("executing html template %s: %v", g.name, err)
   }
   return nil
 }
@@ -121,10 +121,10 @@ func (g *Generator) textFromString(templ string, dot interface{},fm map[string]i
   }
   tpl, err := tpl.Parse(templ)
   if err != nil {
-    return err
+    return fmt.Errorf("parsing text template %s: %v", g.name, err)
   }
   if err := tpl.Execute(g.w, dot); err != nil {
-    return err
+    return fmt.Errorf("executing text template %s: %v", g.name, err)
   }
   return nil
 }
@@ -152,7 +152,7 @@ func (g *Generator) FromString(templ string, dot interface{}) error {
 func (g *Generator) FromPath(tplpath string, dot interface{}) error {
   templ, err := ioutil.ReadFile(tplpath)
   if err != nil {
-    return err
+    return fmt.Errorf("reading template file %s: %v", tplpath, err)
   }
   return g.FromString(string(templ), dot)
 }
@@ -178,7 +178,7 @@ func (g *Generator) FindForm(name string) (string, error) {
       return tplpath, nil
     }
   }
-  return "", fmt.Errorf("Template for %q not found", name)
+  return "", fmt.Errorf("template for %q not found", name)
 }
 
 // evenodd returns the second or third arg based on whether the first arg is even or odd.
