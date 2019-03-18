@@ -170,7 +170,21 @@ func (g *Generator) FromForm(refpaths []string, dot interface{}) error {
 
 // FindForm finds the first readable template in the list of reference directories.
 func (g *Generator) FindForm(name string) (string, error) {
-  for _, d := range g.refpaths {
+  return FindFormInDirs(name, g.refpaths)
+}
+
+// FindAndReadAttributes finds the template and reads the attributes from it.
+func FindAndReadAttributes(name string, dirs []string) (interface{}, error) {
+  tplpath, err := FindFormInDirs(name, dirs)
+  if err != nil {
+    return nil, err
+  }
+  return ReadTemplateAttributesFromPath(tplpath)
+}
+
+// FindForm finds the first readable template in the given list of directories.
+func FindFormInDirs(name string, refpaths []string) (string, error) {
+  for _, d := range refpaths {
     tplpath := path.Join(d, name) + templateExtension
     f, err := os.Open(tplpath)
     if err == nil {
