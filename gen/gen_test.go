@@ -37,15 +37,15 @@ func TestFromPath(t *testing.T) {
   gentest.Finish(t, d)
 }
 
-func TestFromForm(t *testing.T) {
-  formname := "org.jimmc.gtrepgen.test1"
+func TestFromTemplate(t *testing.T) {
+  tplname := "org.jimmc.gtrepgen.test1"
   refdirpaths := []string{"testdata"}
   dot := "World"
 
-  d := gentest.Setup(t, formname)
+  d := gentest.Setup(t, tplname)
 
-  g := New(formname, false, d.OutW, &data.EmptySource{})
-  if err := g.FromForm(refdirpaths, dot); err != nil {
+  g := New(tplname, false, d.OutW, &data.EmptySource{})
+  if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
@@ -68,14 +68,14 @@ func TestHTML(t *testing.T) {
 }
 
 func TestInclude(t *testing.T) {
-  formname := "org.jimmc.gtrepgen.testinclude"
+  tplname := "org.jimmc.gtrepgen.testinclude"
   refdirpaths := []string{"testdata"}
   dot := "World"
 
-  d := gentest.Setup(t, formname)
+  d := gentest.Setup(t, tplname)
 
-  g := New(formname, false, d.OutW, &data.EmptySource{})
-  if err := g.FromForm(refdirpaths, dot); err != nil {
+  g := New(tplname, false, d.OutW, &data.EmptySource{})
+  if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
@@ -83,14 +83,14 @@ func TestInclude(t *testing.T) {
 }
 
 func TestIncludeResult(t *testing.T) {
-  formname := "org.jimmc.gtrepgen.testincluderesult"
+  tplname := "org.jimmc.gtrepgen.testincluderesult"
   refdirpaths := []string{"testdata"}
   dot := "World"
 
-  d := gentest.Setup(t, formname)
+  d := gentest.Setup(t, tplname)
 
-  g := New(formname, false, d.OutW, &data.EmptySource{})
-  if err := g.FromForm(refdirpaths, dot); err != nil {
+  g := New(tplname, false, d.OutW, &data.EmptySource{})
+  if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
@@ -98,17 +98,17 @@ func TestIncludeResult(t *testing.T) {
 }
 
 func TestIncludeTwoDirs(t *testing.T) {
-  formname := "inc1"
+  tplname := "inc1"
   refdirpaths := []string{
     "testdata",
     "../dbsource/testdata",
   }
   dot := "World"
 
-  d := gentest.Setup(t, formname)
+  d := gentest.Setup(t, tplname)
 
-  g := New(formname, false, d.OutW, &data.EmptySource{})
-  if err := g.FromForm(refdirpaths, dot); err != nil {
+  g := New(tplname, false, d.OutW, &data.EmptySource{})
+  if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 

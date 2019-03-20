@@ -79,7 +79,7 @@ func (g *Generator) WithFuncs(funcs map[string]interface{}) *Generator {
 // include allows us to include another template from our reference directory.
 // Args is either no args or a single arg that sets dot.
 func (g *Generator) include(name string, args ...interface{}) (interface{}, error) {
-  tplpath, err := g.FindForm(name)
+  tplpath, err := g.FindTemplate(name)
   if err != nil {
     return nil, fmt.Errorf("template %s: %v", name, err)
   }
@@ -176,33 +176,33 @@ func (g *Generator) FromPath(tplpath string, dot interface{}) error {
   return g.FromString(string(templ), dot)
 }
 
-// FromForm reads a template from a named file within a set of reference directories
+// FromTemplate reads a template from a named file within a set of reference directories
 // and executes it with the specified dot value.
-func (g *Generator) FromForm(refpaths []string, dot interface{}) error {
+func (g *Generator) FromTemplate(refpaths []string, dot interface{}) error {
   g = g.WithRefpaths(refpaths)
-  tplpath, err := g.FindForm(g.name)
+  tplpath, err := g.FindTemplate(g.name)
   if err != nil {
     return err
   }
   return g.FromPath(tplpath, dot)
 }
 
-// FindForm finds the first readable template in the list of reference directories.
-func (g *Generator) FindForm(name string) (string, error) {
-  return FindFormInDirs(name, g.refpaths)
+// FindTemplate finds the first readable template in the list of reference directories.
+func (g *Generator) FindTemplate(name string) (string, error) {
+  return FindTemplateInDirs(name, g.refpaths)
 }
 
 // FindAndReadAttributes finds the template and reads the attributes from it.
 func FindAndReadAttributes(name string, dirs []string) (interface{}, error) {
-  tplpath, err := FindFormInDirs(name, dirs)
+  tplpath, err := FindTemplateInDirs(name, dirs)
   if err != nil {
     return nil, err
   }
   return ReadTemplateAttributesFromPath(tplpath)
 }
 
-// FindForm finds the first readable template in the given list of directories.
-func FindFormInDirs(name string, refpaths []string) (string, error) {
+// FindTemplateInDirs finds the first readable template in the given list of directories.
+func FindTemplateInDirs(name string, refpaths []string) (string, error) {
   for _, d := range refpaths {
     tplpath := path.Join(d, name) + templateExtension
     f, err := os.Open(tplpath)

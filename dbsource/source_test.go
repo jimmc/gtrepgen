@@ -67,14 +67,14 @@ func TestDbSource(t *testing.T) {
     t.Fatal(err)
   }
   dataSource := New(db)
-  formname := "org.jimmc.gtrepgen.sqltest"
+  tplname := "org.jimmc.gtrepgen.sqltest"
   refdirpaths := []string{"testdata"}
   dot := "x"
 
-  d := gentest.Setup(t, formname)
+  d := gentest.Setup(t, tplname)
 
-  g := gen.New(formname, false, d.OutW, dataSource)
-  if err := g.FromForm(refdirpaths, dot); err != nil {
+  g := gen.New(tplname, false, d.OutW, dataSource)
+  if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
