@@ -82,6 +82,21 @@ func TestInclude(t *testing.T) {
   gentest.Finish(t, d)
 }
 
+func TestIncludeResult(t *testing.T) {
+  formname := "org.jimmc.gtrepgen.testincluderesult"
+  refdirpaths := []string{"testdata"}
+  dot := "World"
+
+  d := gentest.Setup(t, formname)
+
+  g := New(formname, false, d.OutW, &data.EmptySource{})
+  if err := g.FromForm(refdirpaths, dot); err != nil {
+    t.Fatal(err)
+  }
+
+  gentest.Finish(t, d)
+}
+
 func TestIncludeTwoDirs(t *testing.T) {
   formname := "inc1"
   refdirpaths := []string{

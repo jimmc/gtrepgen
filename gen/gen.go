@@ -21,12 +21,13 @@ var Now = time.Now
 // Generator provides a type that can generate output from either text or HTML templates
 // from a literal string, a specific file path, or a named file from a reference directory.
 type Generator struct {
-  name string;
-  w io.Writer;
-  source data.Source;
-  isHTML bool;
-  refpaths []string;
-  funcs map[string]interface{};
+  name string
+  w io.Writer
+  source data.Source
+  isHTML bool
+  refpaths []string
+  funcs map[string]interface{}
+  includeResult interface{}
 }
 
 // New creates a Generator.
@@ -90,7 +91,23 @@ func (g *Generator) include(name string, args ...interface{}) (interface{}, erro
   } else {
     dot = args[0]
   }
-  return "", g.WithName(name).FromPath(tplpath, dot)
+  gInclude := g.WithName(name)
+  gInclude.includeResult = ""
+  if err := gInclude.FromPath(tplpath, dot); err != nil {
+    return nil, err
+  }
+  return gInclude.includeResult, nil
+}
+
+// includeReturn provides a way for an included template to pass a return value back to
+// the including template. If the included template does not invoke return, then the
+// return value of the include statement is the empty string.
+// (A return value of nil causes the string "<no value>" to appear in the output when the
+// include statement is called without assigning the output in the caller.)
+// The value of the return expression itself is the empty string.
+func (g *Generator) includeReturn(returnVal interface{}) (interface{}, error) {
+  g.includeResult = returnVal
+  return "", nil
 }
 
 // htmlFromString executes the given literal template with the specified dot value
@@ -138,6 +155,7 @@ func (g *Generator) FromString(templ string, dot interface{}) error {
     "evenodd": evenodd,
     "formatTime": formatTime,
     "reportStartTime": startTime,
+    "return": g.includeReturn,
     "row": g.source.Row,
     "rows": g.source.Rows,
   }
