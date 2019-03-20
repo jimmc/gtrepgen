@@ -139,3 +139,24 @@ func TestFormatTime(t *testing.T) {
     t.Errorf("formatTime got %v, want %v", got, want)
   }
 }
+
+func TestMkmap(t *testing.T) {
+  m, err := mkmap("a", "abc", "b", "bbb", 1, 123)
+  if err != nil {
+    t.Fatalf("Unexpected error from mkmap: %v", err)
+  }
+  if got, want := len(m), 3; got != want {
+    t.Fatalf("Wrong length, got %d, want %d", got, want)
+  }
+  if got, want := m["a"], "abc"; got != want {
+    t.Errorf("m[a]: got %v, want %v", got, want)
+  }
+  if got, want := m[1], 123; got != want {
+    t.Errorf("m[a]: got %v, want %v", got, want)
+  }
+
+  _, err = mkmap("x", "y", "z")
+  if err == nil {
+    t.Fatalf("Expected error from mkmap with odd arg count")
+  }
+}

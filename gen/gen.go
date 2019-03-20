@@ -154,6 +154,7 @@ func (g *Generator) FromString(templ string, dot interface{}) error {
     "include": g.include,
     "evenodd": evenodd,
     "formatTime": formatTime,
+    "mkmap": mkmap,
     "reportStartTime": startTime,
     "return": g.includeReturn,
     "row": g.source.Row,
@@ -211,6 +212,20 @@ func FindFormInDirs(name string, refpaths []string) (string, error) {
     }
   }
   return "", fmt.Errorf("template for %q not found", name)
+}
+
+// mkmap create a map using pairs of keys and values.
+func mkmap(args ...interface{}) (map[interface{}]interface{}, error) {
+  if len(args)%2 != 0 {
+    return nil, fmt.Errorf("mkmap: args count must be even (count=%d)", len(args))
+  }
+  m := make(map[interface{}]interface{}, len(args)/2)
+  for k := 0; k < len(args); k += 2 {
+    key := args[k]
+    val := args[k+1]
+    m[key] = val
+  }
+  return m, nil
 }
 
 // evenodd returns the second or third arg based on whether the first arg is even or odd.
