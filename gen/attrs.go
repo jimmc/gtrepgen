@@ -17,6 +17,8 @@ import (
   "os"
   "path"
   "strings"
+
+  "github.com/google/go-cmp/cmp"
 )
 
 /* TemplateAttributes holds the information for one file from a directory. */
@@ -85,18 +87,27 @@ func extractAttributeString(templ io.Reader) (string, error) {
  * that value.
  */
 func ReadTemplateAttributesFromReader(templ io.Reader) (interface{}, error) {
+  var a interface{}
+  err := ReadTemplateAttributesFromReaderInto(templ, &a)
+  return a, err
+}
+
+/* ReadTemplateAttributesFromReaderInto looks for our special start and end strings
+ * in the given stream. If found, it parses the string between into the given
+ * pointer value.
+ */
+func ReadTemplateAttributesFromReaderInto(templ io.Reader, into interface{}) error {
   b, err := extractAttributeString(templ)
   if err != nil {
-    return nil, fmt.Errorf("extracting attributes from template: %v", err)
+    return fmt.Errorf("extracting attributes from template: %v", err)
   }
   if b == "" {
-    return nil, nil
+    return nil
   }
-  var a interface{}
-  if err := json.Unmarshal([]byte(b), &a); err != nil {
-    return nil, fmt.Errorf("unmarshalling json for template attributes: %v", err)
+  if err := json.Unmarshal([]byte(b), into); err != nil {
+    return fmt.Errorf("unmarshalling json for template attributes: %v", err)
   }
-  return a, nil
+  return nil
 }
 
 /* ReadTemplateAttributesFromString looks for our special start and end strings
@@ -107,34 +118,68 @@ func ReadTemplateAttributesFromString(templ string) (interface{}, error) {
   return ReadTemplateAttributesFromReader(strings.NewReader(templ))
 }
 
+/* ReadTemplateAttributesFromStringInto looks for our special start and end strings
+ * in the given string. If found, it parses the string between into the given pointer.
+ */
+func ReadTemplateAttributesFromStringInto(templ string, into interface{}) error {
+  return ReadTemplateAttributesFromReaderInto(strings.NewReader(templ), into)
+}
+
 /* ReadTemplateAttributesFromPath looks for our special start and end strings
  * in the file at the specified path. If found, it parses the string between
  * and returns that value.
  */
 func ReadTemplateAttributesFromPath(tplpath string) (interface{}, error) {
-  f, err := os.Open(tplpath)
-  if err != nil {
-    return nil, fmt.Errorf("opening template file %s: %v", tplpath, err)
-  }
-  defer f.Close()
-  return ReadTemplateAttributesFromReader(f)
+  var a interface{}
+  err := ReadTemplateAttributesFromPathInto(tplpath, &a)
+  return a, err
 }
 
-/* ReadDirFilesAttributes scans the given directory looking for files
- * with the right filename extension. For each found, it looks for
- * and parses the contents of our special attribute strings.
- * It returns an array of structs holding that information.
- * If there are errors reading individual files, those errors
- * are returned in the array of structs, along with an error
- * that tells how many files had errors.
+/* ReadTemplateAttributesFromPathInto looks for our special start and end strings
+ * in the file at the specified path. If found, it parses the string between
+ * into the given location.
+ */
+func ReadTemplateAttributesFromPathInto(tplpath string, into interface{}) error {
+  f, err := os.Open(tplpath)
+  if err != nil {
+    return fmt.Errorf("opening template file %s: %v", tplpath, err)
+  }
+  defer f.Close()
+  return ReadTemplateAttributesFromReaderInto(f, into)
+}
+
+/* ReadDirFilesAttributes calls ReadDirFilesAttributesAs with a newDestPointer
+ * that creates an interface{}. This allows reading generic JSON data from each
+ * file in the directory.
  */
 func ReadDirFilesAttributes(tpldir string) ([]*TemplateAttributes, error) {
+  newDestPointer := func() interface{} {
+    var a interface{}
+    return &a
+  }
+  return ReadDirFilesAttributesAs(tpldir, newDestPointer)
+}
+
+/* ReadDirFilesAttributesAs scans the given directory looking for files
+ * with the right filename extension. For each found, it looks for
+ * and parses the contents of our special attribute strings.
+ * It returns an array of results holding that information.
+ * If there are errors reading individual files, those errors
+ * are returned in the array, along with an overall error
+ * that tells how many files had errors.
+ * newDestPointer is a function that is called just before reading
+ * the contents of each file. It should return a new instance of
+ * a location where the contents of that file should be stored.
+ * Typically it will look like: func()interface{}{return &MyStruct{}}.
+ */
+func ReadDirFilesAttributesAs(tpldir string, newDestPointer func() interface{}) ([]*TemplateAttributes, error) {
   fileinfos, err := ioutil.ReadDir(tpldir)
   if err != nil {
     return nil, fmt.Errorf("reading templates from %s: %v", tpldir, err)
   }
   errCount := 0
   templateAttributes := []*TemplateAttributes{}
+  zeroAttrs := newDestPointer()
   for _, fileinfo := range fileinfos {
     if fileinfo.IsDir() {
       continue  // Ignore directories.
@@ -145,8 +190,9 @@ func ReadDirFilesAttributes(tpldir string) ([]*TemplateAttributes, error) {
     }
     name := strings.TrimSuffix(fname, templateExtension)
     filepath := path.Join(tpldir, fname)
-    attrs, err := ReadTemplateAttributesFromPath(filepath)
-    if attrs != nil || err != nil {
+    attrs := newDestPointer()
+    err := ReadTemplateAttributesFromPathInto(filepath, attrs)
+    if !cmp.Equal(attrs, zeroAttrs) || err != nil {
       tplAttrs := &TemplateAttributes{
         Name: name,
         Attributes: attrs,
