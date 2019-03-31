@@ -201,6 +201,16 @@ func FindAndReadAttributes(name string, dirs []string) (interface{}, error) {
   return ReadTemplateAttributesFromPath(tplpath)
 }
 
+// FindAndReadAttributesInto finds the template and reads the attributes from it
+// into the specified destination.
+func FindAndReadAttributesInto(name string, dirs []string, dest interface{}) error {
+  tplpath, err := FindTemplateInDirs(name, dirs)
+  if err != nil {
+    return err
+  }
+  return ReadTemplateAttributesFromPathInto(tplpath, dest)
+}
+
 // FindTemplateInDirs finds the first readable template in the given list of directories.
 func FindTemplateInDirs(name string, refpaths []string) (string, error) {
   for _, d := range refpaths {
