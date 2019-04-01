@@ -4,7 +4,8 @@ import (
   "database/sql"
   "errors"
   "fmt"
-  "log"
+
+  "github.com/golang/glog"
 )
 
 // DBQuery represents the functions we use from a database.
@@ -37,7 +38,7 @@ func (s *SqlSource) Rows(args ...interface{}) (interface{}, error) {
   if err != nil {
     return nil, err
   }
-  log.Printf("Got query results")
+  glog.V(1).Infof("Got query results")
   var colNames []string
   fieldCount := -1
   // We need to return either an array or a channel.
@@ -51,7 +52,7 @@ func (s *SqlSource) Rows(args ...interface{}) (interface{}, error) {
         return nil, err
       }
       fieldCount = len(colNames)
-      log.Printf("cols are %+v", colNames)
+      glog.V(1).Infof("cols are %+v", colNames)
     }
     values := make([]interface{}, fieldCount)
     targets := make([]interface{}, fieldCount)
@@ -73,7 +74,7 @@ func (s *SqlSource) Rows(args ...interface{}) (interface{}, error) {
     }
     m["rowindex"] = rowindex
     rowindex++
-    log.Printf("row is %+v", values)
+    glog.V(1).Infof("row is %+v", values)
     data = append(data, m)
   }
   return data, nil
