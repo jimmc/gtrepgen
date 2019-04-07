@@ -33,7 +33,9 @@ func (s *SqlSource) Rows(args ...interface{}) (interface{}, error) {
   if !ok {
     return nil, errors.New("SqlSource.Data first arg must be string (query)")
   }
+  glog.V(2).Infof("Query string is: %q", query)
   queryArgs := args[1:]
+  glog.V(3).Infof("Query args are: %v", queryArgs)
   rr, err := s.db.Query(query, queryArgs...)
   if err != nil {
     return nil, err
