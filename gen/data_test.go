@@ -4,7 +4,7 @@ import (
   "fmt"
   "testing"
 
-  gentest "github.com/jimmc/gtrepgen/test"
+  goldenbase "github.com/jimmc/golden/base"
 )
 
 type TestSource struct{}
@@ -49,7 +49,7 @@ func TestDataSource(t *testing.T) {
   refdirpaths := []string{"testdata"}
   dot := "top"
 
-  r := gentest.NewRunner(tplname)
+  r := goldenbase.NewTester(tplname)
   r.SetupT(t)
 
   g := New(tplname, false, r.OutW, &TestSource{})

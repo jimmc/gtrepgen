@@ -5,7 +5,8 @@ import (
   "time"
 
   "github.com/jimmc/gtrepgen/data"
-  gentest "github.com/jimmc/gtrepgen/test"
+
+  goldenbase "github.com/jimmc/golden/base"
 )
 
 func TestFromString(t *testing.T) {
@@ -13,7 +14,7 @@ func TestFromString(t *testing.T) {
   dot := "World"
   templ := "Hello {{.}}\n"
 
-  r := gentest.NewRunner(basename)
+  r := goldenbase.NewTester(basename)
   r.SetupT(t)
 
   g := New("test", false, r.OutW, &data.EmptySource{})
@@ -28,11 +29,12 @@ func TestFromPath(t *testing.T) {
   basename := "helloworld"
   dot := "World"
 
-  r := gentest.NewRunner(basename)
+  r := goldenbase.NewTester(basename)
   r.SetupT(t)
 
+  tplFilePath := "testdata/" + basename + ".tpl"
   g := New("test", false, r.OutW, &data.EmptySource{})
-  if err := g.FromPath(r.TplFilePath, dot); err != nil {
+  if err := g.FromPath(tplFilePath, dot); err != nil {
     t.Fatal(err)
   }
 
@@ -44,7 +46,7 @@ func TestFromTemplate(t *testing.T) {
   refdirpaths := []string{"testdata"}
   dot := "World"
 
-  r := gentest.NewRunner(tplname)
+  r := goldenbase.NewTester(tplname)
   r.SetupT(t)
 
   g := New(tplname, false, r.OutW, &data.EmptySource{})
@@ -60,7 +62,7 @@ func TestHTML(t *testing.T) {
   dot := "<World>"
   templ := "Hello {{.}}\n"
 
-  r := gentest.NewRunner(basename)
+  r := goldenbase.NewTester(basename)
   r.SetupT(t)
 
   g := New("test", true, r.OutW, &data.EmptySource{})
@@ -76,7 +78,7 @@ func TestInclude(t *testing.T) {
   refdirpaths := []string{"testdata"}
   dot := "World"
 
-  r := gentest.NewRunner(tplname)
+  r := goldenbase.NewTester(tplname)
   r.SetupT(t)
 
   g := New(tplname, false, r.OutW, &data.EmptySource{})
@@ -92,7 +94,7 @@ func TestIncludeResult(t *testing.T) {
   refdirpaths := []string{"testdata"}
   dot := "World"
 
-  r := gentest.NewRunner(tplname)
+  r := goldenbase.NewTester(tplname)
   r.SetupT(t)
 
   g := New(tplname, false, r.OutW, &data.EmptySource{})
@@ -111,7 +113,7 @@ func TestIncludeTwoDirs(t *testing.T) {
   }
   dot := "World"
 
-  r := gentest.NewRunner(tplname)
+  r := goldenbase.NewTester(tplname)
   r.SetupT(t)
 
   g := New(tplname, false, r.OutW, &data.EmptySource{})
