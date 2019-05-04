@@ -6,27 +6,24 @@ import (
   goldenbase "github.com/jimmc/golden/base"
 )
 
-type Data struct {
-  goldenbase.RunData
+type Runner struct {
+  goldenbase.Runner
   TplFilePath string
-  r goldenbase.Runner
 }
 
-func Setup(t *testing.T, basename string) *Data {
+func NewRunner(basename string) *Runner {
+  r := &Runner{}
+  r.BaseName = basename
+  r.TplFilePath = "testdata/" + basename + ".tpl"
+  return r
+}
+
+func (r *Runner) Setup(t *testing.T) {
   t.Helper()
-  tplfilepath := "testdata/" + basename + ".tpl"
-  r := goldenbase.Runner{
-    BaseName: basename,
-  }
-  runData := r.SetupT(t)
-
-  return &Data{
-    RunData: *runData,
-    TplFilePath: tplfilepath,
-    r: r,
-  }
+  r.SetupT(t)
 }
 
-func Finish(t *testing.T, data *Data) {
-  data.r.FinishT(t, &data.RunData)
+func (r *Runner) Finish(t *testing.T) {
+  t.Helper()
+  r.FinishT(t)
 }

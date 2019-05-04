@@ -25,12 +25,13 @@ func TestDbSource(t *testing.T) {
   refdirpaths := []string{"testdata"}
   dot := "x"
 
-  d := gentest.Setup(t, tplname)
+  r := gentest.NewRunner(tplname)
+  r.SetupT(t)
 
-  g := gen.New(tplname, false, d.OutW, dataSource)
+  g := gen.New(tplname, false, r.OutW, dataSource)
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  gentest.Finish(t, d)
+  r.FinishT(t)
 }

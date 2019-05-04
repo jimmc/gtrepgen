@@ -13,28 +13,30 @@ func TestFromString(t *testing.T) {
   dot := "World"
   templ := "Hello {{.}}\n"
 
-  d := gentest.Setup(t, basename)
+  r := gentest.NewRunner(basename)
+  r.SetupT(t)
 
-  g := New("test", false, d.OutW, &data.EmptySource{})
+  g := New("test", false, r.OutW, &data.EmptySource{})
   if err := g.FromString(templ, dot); err != nil {
     t.Fatal(err)
   }
 
-  gentest.Finish(t, d)
+  r.FinishT(t)
 }
 
 func TestFromPath(t *testing.T) {
   basename := "helloworld"
   dot := "World"
 
-  d := gentest.Setup(t, basename)
+  r := gentest.NewRunner(basename)
+  r.SetupT(t)
 
-  g := New("test", false, d.OutW, &data.EmptySource{})
-  if err := g.FromPath(d.TplFilePath, dot); err != nil {
+  g := New("test", false, r.OutW, &data.EmptySource{})
+  if err := g.FromPath(r.TplFilePath, dot); err != nil {
     t.Fatal(err)
   }
 
-  gentest.Finish(t, d)
+  r.FinishT(t)
 }
 
 func TestFromTemplate(t *testing.T) {
@@ -42,14 +44,15 @@ func TestFromTemplate(t *testing.T) {
   refdirpaths := []string{"testdata"}
   dot := "World"
 
-  d := gentest.Setup(t, tplname)
+  r := gentest.NewRunner(tplname)
+  r.SetupT(t)
 
-  g := New(tplname, false, d.OutW, &data.EmptySource{})
+  g := New(tplname, false, r.OutW, &data.EmptySource{})
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  gentest.Finish(t, d)
+  r.FinishT(t)
 }
 
 func TestHTML(t *testing.T) {
@@ -57,14 +60,15 @@ func TestHTML(t *testing.T) {
   dot := "<World>"
   templ := "Hello {{.}}\n"
 
-  d := gentest.Setup(t, basename)
+  r := gentest.NewRunner(basename)
+  r.SetupT(t)
 
-  g := New("test", true, d.OutW, &data.EmptySource{})
+  g := New("test", true, r.OutW, &data.EmptySource{})
   if err := g.FromString(templ, dot); err != nil {
     t.Fatal(err)
   }
 
-  gentest.Finish(t, d)
+  r.FinishT(t)
 }
 
 func TestInclude(t *testing.T) {
@@ -72,14 +76,15 @@ func TestInclude(t *testing.T) {
   refdirpaths := []string{"testdata"}
   dot := "World"
 
-  d := gentest.Setup(t, tplname)
+  r := gentest.NewRunner(tplname)
+  r.SetupT(t)
 
-  g := New(tplname, false, d.OutW, &data.EmptySource{})
+  g := New(tplname, false, r.OutW, &data.EmptySource{})
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  gentest.Finish(t, d)
+  r.FinishT(t)
 }
 
 func TestIncludeResult(t *testing.T) {
@@ -87,14 +92,15 @@ func TestIncludeResult(t *testing.T) {
   refdirpaths := []string{"testdata"}
   dot := "World"
 
-  d := gentest.Setup(t, tplname)
+  r := gentest.NewRunner(tplname)
+  r.SetupT(t)
 
-  g := New(tplname, false, d.OutW, &data.EmptySource{})
+  g := New(tplname, false, r.OutW, &data.EmptySource{})
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  gentest.Finish(t, d)
+  r.FinishT(t)
 }
 
 func TestIncludeTwoDirs(t *testing.T) {
@@ -105,14 +111,15 @@ func TestIncludeTwoDirs(t *testing.T) {
   }
   dot := "World"
 
-  d := gentest.Setup(t, tplname)
+  r := gentest.NewRunner(tplname)
+  r.SetupT(t)
 
-  g := New(tplname, false, d.OutW, &data.EmptySource{})
+  g := New(tplname, false, r.OutW, &data.EmptySource{})
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  gentest.Finish(t, d)
+  r.FinishT(t)
 }
 
 func TestEvenOdd(t *testing.T) {
