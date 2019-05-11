@@ -15,14 +15,14 @@ func TestFromString(t *testing.T) {
   templ := "Hello {{.}}\n"
 
   r := goldenbase.NewTester(basename)
-  r.ArrangeT(t)
+  goldenbase.FatalIfError(t, r.Arrange(), "Arrange")
 
   g := New("test", false, r.OutW, &data.EmptySource{})
   if err := g.FromString(templ, dot); err != nil {
     t.Fatal(err)
   }
 
-  r.AssertT(t)
+  goldenbase.FatalIfError(t, r.Assert(), "Assert")
 }
 
 func TestFromPath(t *testing.T) {
@@ -30,7 +30,7 @@ func TestFromPath(t *testing.T) {
   dot := "World"
 
   r := goldenbase.NewTester(basename)
-  r.ArrangeT(t)
+  goldenbase.FatalIfError(t, r.Arrange(), "Arrange")
 
   tplFilePath := "testdata/" + basename + ".tpl"
   g := New("test", false, r.OutW, &data.EmptySource{})
@@ -38,7 +38,7 @@ func TestFromPath(t *testing.T) {
     t.Fatal(err)
   }
 
-  r.AssertT(t)
+  goldenbase.FatalIfError(t, r.Assert(), "Assert")
 }
 
 func TestFromTemplate(t *testing.T) {
@@ -47,14 +47,14 @@ func TestFromTemplate(t *testing.T) {
   dot := "World"
 
   r := goldenbase.NewTester(tplname)
-  r.ArrangeT(t)
+  goldenbase.FatalIfError(t, r.Arrange(), "Arrange")
 
   g := New(tplname, false, r.OutW, &data.EmptySource{})
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  r.AssertT(t)
+  goldenbase.FatalIfError(t, r.Assert(), "Assert")
 }
 
 func TestHTML(t *testing.T) {
@@ -63,14 +63,14 @@ func TestHTML(t *testing.T) {
   templ := "Hello {{.}}\n"
 
   r := goldenbase.NewTester(basename)
-  r.ArrangeT(t)
+  goldenbase.FatalIfError(t, r.Arrange(), "Arrange")
 
   g := New("test", true, r.OutW, &data.EmptySource{})
   if err := g.FromString(templ, dot); err != nil {
     t.Fatal(err)
   }
 
-  r.AssertT(t)
+  goldenbase.FatalIfError(t, r.Assert(), "Assert")
 }
 
 func TestInclude(t *testing.T) {
@@ -79,14 +79,14 @@ func TestInclude(t *testing.T) {
   dot := "World"
 
   r := goldenbase.NewTester(tplname)
-  r.ArrangeT(t)
+  goldenbase.FatalIfError(t, r.Arrange(), "Arrange")
 
   g := New(tplname, false, r.OutW, &data.EmptySource{})
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  r.AssertT(t)
+  goldenbase.FatalIfError(t, r.Assert(), "Assert")
 }
 
 func TestIncludeResult(t *testing.T) {
@@ -95,14 +95,14 @@ func TestIncludeResult(t *testing.T) {
   dot := "World"
 
   r := goldenbase.NewTester(tplname)
-  r.ArrangeT(t)
+  goldenbase.FatalIfError(t, r.Arrange(), "Arrange")
 
   g := New(tplname, false, r.OutW, &data.EmptySource{})
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  r.AssertT(t)
+  goldenbase.FatalIfError(t, r.Assert(), "Assert")
 }
 
 func TestIncludeTwoDirs(t *testing.T) {
@@ -114,14 +114,14 @@ func TestIncludeTwoDirs(t *testing.T) {
   dot := "World"
 
   r := goldenbase.NewTester(tplname)
-  r.ArrangeT(t)
+  goldenbase.FatalIfError(t, r.Arrange(), "Arrange")
 
   g := New(tplname, false, r.OutW, &data.EmptySource{})
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  r.AssertT(t)
+  goldenbase.FatalIfError(t, r.Assert(), "Assert")
 }
 
 func TestEvenOdd(t *testing.T) {

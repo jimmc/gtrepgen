@@ -50,12 +50,12 @@ func TestDataSource(t *testing.T) {
   dot := "top"
 
   r := goldenbase.NewTester(tplname)
-  r.ArrangeT(t)
+  goldenbase.FatalIfError(t, r.Arrange(), "Arrange")
 
   g := New(tplname, false, r.OutW, &TestSource{})
   if err := g.FromTemplate(refdirpaths, dot); err != nil {
     t.Fatal(err)
   }
 
-  r.AssertT(t)
+  goldenbase.FatalIfError(t, r.Assert(), "Assert")
 }

@@ -28,5 +28,5 @@ func TestDbSource(t *testing.T) {
   r := goldendb.NewTester(tplname, callback)
   r.SetupPath = sqlFile
 
-  goldenbase.RunT(t, r)
+  goldenbase.FatalIfError(t, goldenbase.Run(r), "Run")
 }
