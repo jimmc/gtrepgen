@@ -10,6 +10,8 @@ import (
   texttemplate "text/template"
   "time"
 
+  "github.com/golang/glog"
+
   "github.com/jimmc/gtrepgen/data"
 )
 
@@ -32,6 +34,7 @@ type Generator struct {
 
 // New creates a Generator.
 func New(name string, isHTML bool, w io.Writer, source data.Source) *Generator {
+  glog.V(1).Infof("gtrepgen.New(%s)", name)
   return &Generator{
     name: name,
     w: w,
@@ -42,6 +45,7 @@ func New(name string, isHTML bool, w io.Writer, source data.Source) *Generator {
 
 // Create a copy of a generator with a changed name.
 func (g *Generator) WithName(name string) *Generator {
+  glog.V(1).Infof("gtrepgen.WithName(%s) from name %s", name, g.name)
   return &Generator{
     name: name,
     w: g.w,
@@ -54,6 +58,7 @@ func (g *Generator) WithName(name string) *Generator {
 
 // Create a copy of a generator with a changed refpaths.
 func (g *Generator) WithRefpaths(refpaths []string) *Generator {
+  glog.V(1).Infof("gtrepgen.WithRefpaths(%v) from name %s", refpaths, g.name)
   return &Generator{
     name: g.name,
     w: g.w,
@@ -66,6 +71,7 @@ func (g *Generator) WithRefpaths(refpaths []string) *Generator {
 
 // Create a copy of a generator with a changed funcs.
 func (g *Generator) WithFuncs(funcs map[string]interface{}) *Generator {
+  glog.V(1).Infof("gtrepgen.WithFuncs() from name %s", g.name)
   return &Generator{
     name: g.name,
     w: g.w,
@@ -79,6 +85,7 @@ func (g *Generator) WithFuncs(funcs map[string]interface{}) *Generator {
 // include allows us to include another template from our reference directory.
 // Args is either no args or a single arg that sets dot.
 func (g *Generator) include(name string, args ...interface{}) (interface{}, error) {
+  glog.V(2).Infof("gtrepgen.include(%s)", name)
   tplpath, err := g.FindTemplate(name)
   if err != nil {
     return nil, fmt.Errorf("template %s: %v", name, err)
@@ -99,6 +106,26 @@ func (g *Generator) include(name string, args ...interface{}) (interface{}, erro
   return gInclude.includeResult, nil
 }
 
+// evalTemplate allows us to evaluate a template from a given string, as if we read it from a file.
+// Args is either no args or a single arg that sets dot.
+func (g *Generator) evalTemplate(template string, args ...interface{}) (interface{}, error) {
+  glog.V(2).Infof("gtrepgen.evalTemplate()")
+  var dot interface{}
+  if len(args) > 1 {
+    return nil, fmt.Errorf("too many args (%d) for Generator.template", len(args))
+  } else if len(args) == 0 {
+    dot = nil
+  } else {
+    dot = args[0]
+  }
+  gInclude := g.WithName("evalTemplate")
+  gInclude.includeResult = ""
+  if err := gInclude.FromString(template, dot); err != nil {
+    return nil, err
+  }
+  return gInclude.includeResult, nil
+}
+
 // includeReturn provides a way for an included template to pass a return value back to
 // the including template. If the included template does not invoke return, then the
 // return value of the include statement is the empty string.
@@ -113,6 +140,7 @@ func (g *Generator) includeReturn(returnVal interface{}) (interface{}, error) {
 // htmlFromString executes the given literal template with the specified dot value
 // using html/template.
 func (g *Generator) htmlFromString(templ string, dot interface{}, fm map[string]interface{}) error {
+  glog.V(2).Infof("gtrepgen.htmlFromString()")
   tpl := htmltemplate.New(g.name)
   tpl = tpl.Funcs(fm)
   if g.funcs != nil {
@@ -131,6 +159,7 @@ func (g *Generator) htmlFromString(templ string, dot interface{}, fm map[string]
 // textFromString executes the given literal template with the specified dot value
 // using text/template.
 func (g *Generator) textFromString(templ string, dot interface{},fm map[string]interface{}) error {
+  glog.V(2).Infof("gtrepgen.textFromString()")
   tpl := texttemplate.New(g.name)
   tpl = tpl.Funcs(fm)
   if g.funcs != nil {
@@ -152,6 +181,7 @@ func (g *Generator) FromString(templ string, dot interface{}) error {
   startTime := func() time.Time { return now }
   fm := map[string]interface{}{  // fm is a (texttemplate|htmltemplate).FuncMap
     "include": g.include,
+    "evalTemplate": g.evalTemplate,
     "evenodd": evenodd,
     "formatTime": formatTime,
     "mkmap": mkmap,
